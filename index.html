@@ -36,7 +36,6 @@
             40%, 60% { transform: translate3d(4px, 0, 0); }
         }
 
-        /* 隱藏數字輸入框的上下箭頭，保持介面簡潔 */
         input[type=number]::-webkit-inner-spin-button, 
         input[type=number]::-webkit-outer-spin-button { 
             -webkit-appearance: none; 
@@ -98,10 +97,10 @@
                     <span id="label-binary" class="text-slate-400 font-semibold mb-4 uppercase tracking-wider text-sm">8-bit 符號及絕對值表示法</span>
                     
                     <div class="flex flex-wrap sm:flex-nowrap gap-1 sm:gap-2 w-full justify-center" id="binary-container">
-                        </div>
+                    </div>
                     
                     <div class="flex flex-wrap sm:flex-nowrap justify-center mt-3 gap-1 sm:gap-2 text-[9px] sm:text-xs text-slate-400 font-mono w-full">
-                        <div class="w-7 sm:w-10 text-center text-red-400 flex flex-col"><span id="label-sign-name" class="font-bold">符號</span><span>(Sign)</span></div>
+                        <div class="w-7 sm:w-10 text-center text-red-400 flex flex-col"><span id="label-sign-name" class="font-bold">符號</span><span>(+/-)</span></div>
                         <div class="w-7 sm:w-10 text-center flex flex-col"><span>&nbsp;</span><span>(64)</span></div>
                         <div class="w-7 sm:w-10 text-center flex flex-col"><span>&nbsp;</span><span>(32)</span></div>
                         <div class="w-7 sm:w-10 text-center flex flex-col"><span>&nbsp;</span><span>(16)</span></div>
@@ -139,9 +138,9 @@
                     <div>
                         <h4 class="font-semibold text-slate-800 mb-2" id="concept-how-title">規則很簡單，分成兩部分：</h4>
                         <p class="text-sm leading-relaxed mb-2" id="concept-how-desc">最左邊的位元（第 8 bit）專門用來記錄正負號：<strong>0 代表正數，1 代表負數</strong>。其餘的 7 個位元用來記錄數值的絕對值。</p>
-                        <div class="bg-slate-50 p-3 rounded border border-slate-100 text-xs sm:text-sm font-mono text-slate-600">
+                        <div id="concept-example" class="bg-slate-50 p-3 rounded border border-slate-100 text-xs sm:text-sm font-mono text-slate-600">
                             +5 = <span class="text-red-500 font-bold">0</span>000 0101<br>
-                            -5 = <span class="text-red-500 font-bold">1</span>000 0101 (Change only the first bit)
+                            -5 = <span class="text-red-500 font-bold">1</span>000 0101 (只改第一位)
                         </div>
                     </div>
                     <div>
@@ -188,13 +187,11 @@
     </div>
 
     <script>
-        // --- 狀態管理 ---
-        let currentValue = 0; // -127 to 127
-        let isNegativeZero = false; // 紀錄是否為特殊的 -0 狀態
-        let currentLang = 'en';
+        let currentValue = 0; 
+        let isNegativeZero = false; 
+        let currentLang = 'zh';
         let previousBinaryString = "00000000";
 
-        // --- 多國語言設定 ---
         const i18n = {
             zh: {
                 appTitle: "符號及絕對值表示法",
@@ -212,6 +209,7 @@
                 conceptTitle: "概念解析",
                 conceptHowTitle: "規則很簡單，分成兩部分：",
                 conceptHowDesc: "最左邊的位元（第 8 bit）專門用來記錄正負號：<strong>0 代表正數，1 代表負數</strong>。其餘的 7 個位元用來記錄數值的絕對值。",
+                conceptExample: "+5 = <span class=\"text-red-500 font-bold\">0</span>000 0101<br>-5 = <span class=\"text-red-500 font-bold\">1</span>000 0101 (只改第一位)",
                 conceptFlawTitle: "為什麼現在的電腦不用它？",
                 conceptFlawDesc: "雖然人類很容易看懂，但對電腦計算來說很不方便。當電腦要把兩個數字相加時，它必須先檢查符號。如果符號不同，加法就要轉換成減法處理。而且它還產生了「+0 (00000000)」和「-0 (10000000)」的問題！",
                 miscTitle: "常見迷思 (Common Misconception)",
@@ -239,6 +237,7 @@
                 conceptTitle: "Concept Breakdown",
                 conceptHowTitle: "Simple Rule, Two Parts:",
                 conceptHowDesc: "The leftmost bit (8th bit) is dedicated to the sign: <strong>0 for positive, 1 for negative</strong>. The remaining 7 bits represent the absolute value.",
+                conceptExample: "+5 = <span class=\"text-red-500 font-bold\">0</span>000 0101<br>-5 = <span class=\"text-red-500 font-bold\">1</span>000 0101 (Only change the first bit)",
                 conceptFlawTitle: "Why don't modern computers use it?",
                 conceptFlawDesc: "It's easy for humans to read, but inefficient for computing. To add two numbers, the computer must first check the signs. If they differ, it has to perform subtraction. Plus, it suffers from the dual zero problem (+0 and -0)!",
                 miscTitle: "Common Misconception",
@@ -252,7 +251,6 @@
             }
         };
 
-        // --- 初始化 ---
         function init() {
             createBinaryBoxes();
             updateDisplay();
@@ -271,24 +269,19 @@
             }
         }
 
-        // --- 核心邏輯 ---
         function getBinaryString(val, isNegZ) {
             if (isNegZ) return "10000000"; 
-            
             let signBit = val < 0 ? "1" : "0";
             let magBinary = Math.abs(val).toString(2).padStart(7, '0');
-            
             return signBit + magBinary;
         }
 
         function handleInputChange(val) {
             let num = parseInt(val);
             isNegativeZero = false; 
-            
             if (isNaN(num)) num = 0;
             if (num > 127) num = 127;
             if (num < -127) num = -127;
-            
             currentValue = num;
             updateDisplay();
         }
@@ -296,10 +289,8 @@
         function updateValue(delta) {
             isNegativeZero = false;
             let newValue = currentValue + delta;
-
             if (newValue > 127) newValue = 127; 
             if (newValue < -127) newValue = -127;
-
             currentValue = newValue;
             updateDisplay();
         }
@@ -323,38 +314,32 @@
             updateDisplay();
         }
 
-        // --- 畫面更新邏輯 ---
         function updateDisplay() {
             const decInput = document.getElementById('decimal-input');
             const negZeroSign = document.getElementById('negative-zero-sign');
             
-            // 處理數字顯示邏輯
             if (isNegativeZero) {
-                decInput.value = 0; // 如果是 -0，輸入框本身顯示 0
+                decInput.value = 0; 
             } else {
-                decInput.value = currentValue; // 正常情況直接讓輸入框顯示完整數值（包含負號）
+                decInput.value = currentValue; 
             }
 
-            // 共用的基礎 CSS 類別
             let baseInputClasses = "w-full text-center text-5xl sm:text-6xl font-bold bg-transparent border-b-2 border-transparent hover:border-slate-300 focus:border-indigo-500 outline-none transition-colors duration-300";
 
-            // 處理顏色與特殊符號顯示邏輯
             if (currentValue > 0) {
                 decInput.className = baseInputClasses + " text-green-600";
-                negZeroSign.classList.add('hidden'); // 隱藏特殊負號
+                negZeroSign.classList.add('hidden'); 
             } else if (currentValue < 0) {
                 decInput.className = baseInputClasses + " text-orange-600";
-                negZeroSign.classList.add('hidden'); // 隱藏特殊負號，依賴 input 自身的負號
+                negZeroSign.classList.add('hidden'); 
             } else if (isNegativeZero) {
-                // 特殊處理 -0 的顯示方式，加上 padding 來配合額外的負號
                 decInput.className = baseInputClasses + " text-orange-600 pl-4 sm:pl-8";
-                negZeroSign.classList.remove('hidden'); // 顯示特殊的橘色負號
+                negZeroSign.classList.remove('hidden'); 
             } else {
                 decInput.className = baseInputClasses + " text-slate-800";
-                negZeroSign.classList.add('hidden'); // 正常 0 不需負號
+                negZeroSign.classList.add('hidden'); 
             }
 
-            // 更新二進制顯示
             const binString = getBinaryString(currentValue, isNegativeZero);
             for (let i = 0; i < 8; i++) {
                 const bitBox = document.getElementById(`bit-${i}`);
@@ -370,7 +355,6 @@
             }
             previousBinaryString = binString;
 
-            // 更新 -0 警告提示
             const zeroAlert = document.getElementById('zero-alert');
             if (isNegativeZero) {
                 zeroAlert.classList.remove('hidden');
@@ -381,7 +365,6 @@
             }
         }
 
-        // --- 語言切換邏輯 ---
         function toggleLanguage() {
             currentLang = currentLang === 'en' ? 'zh' : 'en';
             applyLanguage();
@@ -410,6 +393,7 @@
             document.getElementById('concept-title').innerText = t.conceptTitle;
             document.getElementById('concept-how-title').innerText = t.conceptHowTitle;
             document.getElementById('concept-how-desc').innerHTML = t.conceptHowDesc;
+            document.getElementById('concept-example').innerHTML = t.conceptExample;
             document.getElementById('concept-flaw-title').innerText = t.conceptFlawTitle;
             document.getElementById('concept-flaw-desc').innerHTML = t.conceptFlawDesc;
 
